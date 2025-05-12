@@ -31,6 +31,8 @@ jobs:
 
     - name: Apply Kubernetes Deployment
       run: kubectl apply -f k8s/django-deployment.yaml
+    - name: Apply Kubernetes Services
+      run: kubectl apply -f k8s/dj-service.yaml 
 
     - name: Force Restart Deployment (ensure image refresh)
       run: kubectl rollout restart deployment django-app -n web-apps
