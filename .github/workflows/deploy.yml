@@ -18,8 +18,8 @@ jobs:
 
     - name: Build and push Docker image
       run: |
-        docker docker -t ${{ secrets.DOCKER_USERNAME }}/django-app-name:latest .
-        docker docker ${{ secrets.DOCKER_USERNAME }}/django-app-name:latest
+        docker -t ${{ secrets.DOCKER_USERNAME }}/django-app-name:latest .
+        docker ${{ secrets.DOCKER_USERNAME }}/django-app-name:latest
 
     - name: Set up Kubeconfig
       run: |
