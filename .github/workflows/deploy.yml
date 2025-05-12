@@ -25,18 +25,18 @@ jobs:
       run: |
         mkdir -p ~/.kube
         echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > ~/.kube/config
+        chmod 600 ~/.kube/config
+        kubectl config get-contexts
+        kubectl get nodes
 
     - name: Apply Kubernetes Deployment
-      run: |
-        kubectl apply -f k8s/django-deployment.yaml
+      run: kubectl apply -f k8s/django-deployment.yaml
 
     - name: Force Restart Deployment (ensure image refresh)
-      run: |
-        kubectl rollout restart deployment django-app -n web-apps
+      run: kubectl rollout restart deployment django-app -n web-apps
 
     - name: Verify Deployment Rollout
-      run: |
-        kubectl rollout status deployment/django-app --namespace=web-apps --timeout=60s
+      run: kubectl rollout status deployment/django-app --namespace=web-apps --timeout=60s
 
     - name: Debug on Rollout Failure
       if: failure()
@@ -45,3 +45,12 @@ jobs:
         kubectl get pods -n web-apps
         kubectl describe deployment django-app -n web-apps
         kubectl logs --tail=50 -l app=django-app -n web-apps || true
+
+    # Optional: Automatically create imagePullSecret in cluster if needed
+    # - name: Create Docker registry secret (optional)
+    #   run: |
+    #     kubectl create secret docker-registry regcred \
+    #       --docker-username=${{ secrets.DOCKER_USERNAME }} \
+    #       --docker-password=${{ secrets.DOCKER_PASSWORD }} \
+    #       --docker-server=https://index.docker.io/v1/ \
+    #       --namespace=web-apps --dry-run=client -o yaml | kubectl apply -f -
